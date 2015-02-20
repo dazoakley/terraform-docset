@@ -55,6 +55,7 @@ task :build_docset do
   system("cp -r terraform.io/docs/* #{documents_dir}/")
   system("cp Info.plist #{contents_dir}/")
   system("cp docSet.dsidx #{resources_dir}/")
+  system('cp icon.png Terraform.docset/')
 end
 
 def generate_entries(db, path:, type:, title_sub:, skip_file: nil)
