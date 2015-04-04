@@ -17,7 +17,10 @@ end
 
 task :download do
   puts 'Downloading documentation...'
-  system('httrack http://terraform.io/docs/ --mirror')
+  system('httrack http://terraform.io/docs --mirror')
+  system('httrack http://terraform.io/docs --update')
+  system('rm terraform.io/index.html')
+  system('cp terraform.io/docs.html terraform.io/index.html')
 end
 
 task :make_database do
@@ -32,13 +35,13 @@ task :make_database do
   end
 
   # Add guides
-  db[:searchIndex] << { name: 'Commands (CLI)', type: 'Guide', path: 'commands/index.html' }
-  db[:searchIndex] << { name: 'Configuration',  type: 'Guide', path: 'configuration/index.html' }
-  db[:searchIndex] << { name: 'Internals',      type: 'Guide', path: 'internals/index.html' }
-  db[:searchIndex] << { name: 'Modules',        type: 'Guide', path: 'modules/index.html' }
-  db[:searchIndex] << { name: 'Plugins',        type: 'Guide', path: 'plugins/index.html' }
-  db[:searchIndex] << { name: 'Providers',      type: 'Guide', path: 'providers/index.html' }
-  db[:searchIndex] << { name: 'Provisioners',   type: 'Guide', path: 'provisioners/index.html' }
+  db[:searchIndex] << { name: 'Commands (CLI)', type: 'Guide', path: 'docs/commands/index.html' }
+  db[:searchIndex] << { name: 'Configuration',  type: 'Guide', path: 'docs/configuration/index.html' }
+  db[:searchIndex] << { name: 'Internals',      type: 'Guide', path: 'docs/internals/index.html' }
+  db[:searchIndex] << { name: 'Modules',        type: 'Guide', path: 'docs/modules/index.html' }
+  db[:searchIndex] << { name: 'Plugins',        type: 'Guide', path: 'docs/plugins/index.html' }
+  db[:searchIndex] << { name: 'Providers',      type: 'Guide', path: 'docs/providers/index.html' }
+  db[:searchIndex] << { name: 'Provisioners',   type: 'Guide', path: 'docs/provisioners/index.html' }
 
   # Fudge bad entries
   db[:searchIndex].where(name: 'Provider', type: 'Provider').update(name: 'Mailgun')
@@ -52,7 +55,7 @@ task :build_docset do
   documents_dir = "#{resources_dir}/Documents"
 
   system("mkdir -p #{documents_dir}")
-  system("cp -r terraform.io/docs/* #{documents_dir}/")
+  system("cp -r terraform.io/* #{documents_dir}/")
   system("cp Info.plist #{contents_dir}/")
   system("cp docSet.dsidx #{resources_dir}/")
   system('cp icon.png Terraform.docset/')
@@ -69,11 +72,8 @@ def generate_entries(db, path:, type:, title_sub:, skip_file: nil)
     doc  = Nokogiri::HTML(File.open(filename))
     name = doc.css('h1').first.content.sub(title_sub, '')
 
-    entry = { name: name, type: type, path: filename }
+    entry = { name: name, type: type, path: File.join('docs', filename) }
     puts entry
     db[:searchIndex] << entry
   end
-end
-
-def fudge_db(db)
 end
